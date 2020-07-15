@@ -1,0 +1,14 @@
+version: '3.2'
+    
+services:
+  python:
+    image: tf2/python:1.0
+    build: ./python
+    container_name: 'tf2_python'
+    ports:
+      - '6006:6006'
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../python:/home/user1/dev
+ 

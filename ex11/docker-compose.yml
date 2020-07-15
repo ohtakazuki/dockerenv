@@ -1,0 +1,25 @@
+version: '3.2'
+    
+services:
+  db:
+    image: postgres:12.3-alpine
+    container_name: 'ex11_db'
+    expose: 
+      - "5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  python:
+    image: ex11/python:1.0
+    build: ./python
+    container_name: 'ex11_python'
+    working_dir: '/tmp/work'
+    volumes:
+      - ./python/src:/tmp/work
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+    command: /bin/bash

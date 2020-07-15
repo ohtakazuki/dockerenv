@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookList</title>
+</head>
+<body>
+  <table border="1">
+  {% for book in books %}
+    <tr><td>{{ book[0] }}</td><td>{{ book[1] }}</td><td>{{ book[2] }}</td></tr>
+  {% endfor %}
+  </table>
+</body>
+</html>

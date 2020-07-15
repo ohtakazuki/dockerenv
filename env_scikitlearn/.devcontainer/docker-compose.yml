@@ -1,0 +1,12 @@
+version: '3.2'
+    
+services:
+  python:
+    image: sklearn/python:1.0
+    build: ./python
+    container_name: 'sklearn_python'
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../python:/home/user1/dev
+ 

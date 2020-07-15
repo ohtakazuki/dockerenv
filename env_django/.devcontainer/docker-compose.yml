@@ -1,0 +1,31 @@
+version: '3.2'
+    
+services:
+  db:
+    image: postgres:12.3-alpine
+    container_name: 'django_db'
+    expose: 
+      - "5432"
+    environment:
+      - TZ=Asia/Tokyo
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ../db/database:/var/lib/postgresql/data
+      - ../db/init:/docker-entrypoint-initdb.d  
+  web:
+    image: django/web:1.0
+    build: ./web
+    container_name: 'django_web'
+    ports:
+      - 8000:8000
+    environment:
+      - DEBUG=1
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../web:/home/user1/dev
+ 
