@@ -3,12 +3,17 @@ from bs4 import BeautifulSoup
 import datetime
 import schedule
 import time
+import os.path
 
 # 検索ワード
 searchword = 'japan'
 
 # WebサイトのURLを指定
 url = f'https://news.google.com/search?q={searchword}&hl=ja&gl=JP&ceid=JP:ja'
+
+# フォルダが無ければ作る
+if os.path.isdir("out") == False:
+    os.mkdir("out")
 
 # スクレイピングを行う関数
 def getnews():
