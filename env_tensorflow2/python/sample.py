@@ -9,9 +9,14 @@ import datetime
 # ----------------------------------------
 # ログ出力の定義
 # ----------------------------------------
+import os.path
 import logging
 import logging.config
 from logging import getLogger
+
+if os.path.isdir("out") == False:
+    os.mkdir("out")
+
 logging.config.fileConfig("logging.conf")
 logger = getLogger(__name__)
 
