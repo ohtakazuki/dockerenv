@@ -1,5 +1,5 @@
 numpy == 1.19.0
 matplotlib == 3.2.2
-Pillow == 7.2.0
+Pillow == 8.1.1
 tensorflow == 2.2.0
 tf-hub-nightly == 0.9.0.dev202007100006
