@@ -1,2 +1,2 @@
-django == 3.0.8
+django == 3.0.12
 psycopg2-binary
