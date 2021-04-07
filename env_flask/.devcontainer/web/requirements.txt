@@ -1,2 +1,2 @@
 flask == 1.1.2
-mysql-connector-python == 8.0.21
+mysql-connector-python == 8.0.23
