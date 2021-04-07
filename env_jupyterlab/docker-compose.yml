@@ -1,0 +1,14 @@
+version: '3.2'
+    
+services:
+  jupyter:
+    image: jupyterlab/notebook:1.0
+    build: .
+    container_name: 'jupyterlab_notebook'
+    ports:
+      - 8888:8888
+    working_dir: '/home/user1/notebook'
+    volumes:
+      - ./notebook:/home/user1/notebook
+    command: jupyter lab --port 8888 --ip=0.0.0.0 --no-browser --allow-root --NotebookApp.token=''
+
