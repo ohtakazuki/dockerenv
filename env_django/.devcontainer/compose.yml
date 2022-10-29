@@ -1,9 +1,7 @@
-version: '3.2'
-    
 services:
   db:
-    image: postgres:13.2-alpine
-    container_name: 'django_db'
+    image: postgres:15.0-alpine
+    container_name: 'django-db'
     expose: 
       - "5432"
     environment:
@@ -17,7 +15,7 @@ services:
   web:
     image: django/web:1.0
     build: ./web
-    container_name: 'django_web'
+    container_name: 'django-web'
     ports:
       - 8000:8000
     environment:

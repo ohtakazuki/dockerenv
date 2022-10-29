@@ -1,6 +1,6 @@
 {
   "name": "Flask Web",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": "compose.yml",
   "service": "web",
   "workspaceFolder": "/home/user1/dev",
   "extensions": [

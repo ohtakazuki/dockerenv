@@ -1,9 +1,7 @@
-version: '3.2'
-    
 services:
   db:
-    image: postgres:13.2-alpine
-    container_name: 'ex11_db'
+    image: postgres:alpine3.16
+    container_name: 'ex11-db'
     expose: 
       - "5432"
     environment:
@@ -14,7 +12,7 @@ services:
   python:
     image: ex11/python:1.0
     build: ./python
-    container_name: 'ex11_python'
+    container_name: 'ex11-python'
     working_dir: '/tmp/work'
     volumes:
       - ./python/src:/tmp/work

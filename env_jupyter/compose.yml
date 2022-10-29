@@ -1,10 +1,8 @@
-version: '3.2'
-    
 services:
   jupyter:
     image: jupyter/notebook:1.0
     build: .
-    container_name: 'jupyter_notebook'
+    container_name: 'jupyter-notebook'
     ports:
       - 8888:8888
     working_dir: '/home/user1/notebook'

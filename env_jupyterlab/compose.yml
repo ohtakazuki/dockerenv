@@ -1,10 +1,8 @@
-version: '3.2'
-    
 services:
   jupyter:
     image: jupyterlab/notebook:1.0
     build: .
-    container_name: 'jupyterlab_notebook'
+    container_name: 'jupyterlab-notebook'
     ports:
       - 8888:8888
     working_dir: '/home/user1/notebook'

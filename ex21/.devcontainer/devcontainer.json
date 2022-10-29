@@ -1,6 +1,6 @@
 {
   "name": "Python Basic Project",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": "compose.yml",
   "service": "python",
   "workspaceFolder": "/tmp/work",
   "extensions": [

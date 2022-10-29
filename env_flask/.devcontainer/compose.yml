@@ -1,10 +1,8 @@
-version: '3.2'
-    
 services:
   db:
     image: flask/mysql:1.0
     build: ./db
-    container_name: 'flask_db'
+    container_name: 'flask-db'
     expose: 
       - "3306"
     environment:
@@ -19,7 +17,7 @@ services:
   web:
     image: flask/web:1.0
     build: ./web
-    container_name: 'flask_web'
+    container_name: 'flask-web'
     ports:
       - 5000:5000
     stdin_open: true

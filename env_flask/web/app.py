@@ -7,7 +7,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
   # mysqlからデータを取得
-  conn = mysql.connector.connect(user='my', password='my', host='flask_db', database='my')
+  conn = mysql.connector.connect(user='my', password='my', host='flask-db', database='my')
   cur = conn.cursor()
   cur.execute("select * from book")
   books = cur.fetchall()

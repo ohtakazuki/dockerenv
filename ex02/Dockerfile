@@ -1,10 +1,13 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # 作業ディレクトリを変更
 WORKDIR /tmp/mydir
 
 # ファイルのコピー
 COPY requirements.txt ${PWD}
+
+# pip自体のアップデート
+RUN pip install -U pip
 
 # pythonのパッケージをインストール
 RUN pip install -r requirements.txt

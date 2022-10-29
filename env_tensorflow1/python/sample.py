@@ -1,9 +1,20 @@
+import os
+# GPUを使用しない
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# oneDNNを使用する
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 # 学習済モデル取得用
 import tensorflow_hub as hub
+# 処理時間計測用
+import time
+
+# 全体の処理時間計測用
+start = time.perf_counter()
 
 # ----------------------------------------
 # ログ出力の定義
@@ -136,7 +147,6 @@ plt.savefig('./out/predict.png')
 # ----------------------------------------
 # モデルのエクスポート
 # ----------------------------------------
-import time
 t = time.time()
 
 export_path = "./out/{}".format(int(t))
@@ -152,3 +162,6 @@ reloaded_result_batch = reloaded.predict(image_batch)
 diff = abs(reloaded_result_batch - result_batch).max()
 
 logger.info(f'diff: {diff}')
+
+# 全体の処理の実行時間を出力
+logger.info(f'total time: {time.perf_counter() - start}')

@@ -1,10 +1,8 @@
-version: '3.2'
-    
 services:
   python:
-    image: scraping/python:1.0
+    image: tf1/python:1.0
     build: ./python
-    container_name: 'scraping_python'
+    container_name: 'tf1-python'
     stdin_open: true
     tty: true
     volumes:
