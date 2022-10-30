@@ -76,6 +76,9 @@ WSGI_APPLICATION = 'myprj.wsgi.application'
 
 DATABASES = {
   'default': {
+      # M1Macの場合は以下を指定
+      # 'ENGINE': 'django.db.backends.postgresql',
+      # それ以外の場合は以下を指定
       'ENGINE': 'django.db.backends.postgresql_psycopg2',
       'NAME': 'postgres',
       'USER': 'postgres',

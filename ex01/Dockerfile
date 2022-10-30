@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # メタ情報の付与
 LABEL maintainer="usermail@hogehoge.com"

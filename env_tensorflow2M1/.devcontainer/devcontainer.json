@@ -1,0 +1,12 @@
+{
+  "name": "Tensorflow2M1 Python",
+  "dockerComposeFile": "compose.yml",
+  "service": "python",
+  "workspaceFolder": "/home/ubuntu/dev",
+  "extensions": [
+    "ms-python.python"
+  ],
+  "settings": {
+    "editor.tabSize": 2,
+  },
+}

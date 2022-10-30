@@ -1,0 +1,12 @@
+services:
+  python:
+    image: tf2m1/python:1.0
+    build: ./python
+    container_name: 'tf2m1-python'
+    ports:
+      - '6006:6006'
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../python:/home/ubuntu/dev
+ 

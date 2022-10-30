@@ -1,4 +1,7 @@
-FROM python:3.10-slim
+# M1Macの場合は以下を指定
+# FROM python:3.11
+# それ以外の場合は以下を指定
+FROM python:3.11-slim
 
 # パッケージのインストール
 RUN apt-get update -qq \
