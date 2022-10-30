@@ -1,8 +1,8 @@
 {
-  "name": "Tensorflow1M1 Python",
+  "name": "Tensorflow1 Python",
   "dockerComposeFile": "compose.yml",
   "service": "python",
-  "workspaceFolder": "/home/ubuntu/dev",
+  "workspaceFolder": "/home/user1/dev",
   "extensions": [
     "ms-python.python"
   ],

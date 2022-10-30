@@ -1,25 +1,19 @@
-import os
-# GPUを使用しない
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-# oneDNNを使用する
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
-
-import matplotlib.pyplot as plt
+import matplotlib.pylab as plt
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers
 # 学習済モデル取得用
 import tensorflow_hub as hub
-import datetime
 # 処理時間計測用
 import time
+# ログファイル名
+import datetime
 
 # 全体の処理時間計測用
 start = time.perf_counter()
 
-# ----------------------------------------
+# --------------------
 # ログ出力の定義
-# ----------------------------------------
+# --------------------
 import os.path
 import logging
 import logging.config
@@ -31,144 +25,160 @@ if os.path.isdir("out") == False:
 logging.config.fileConfig("logging.conf")
 logger = getLogger(__name__)
 
-# ----------------------------------------
-# データの準備
-# ----------------------------------------
-# データをダウンロードしてinフォルダに格納
-_url = 'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz'
-
+# --------------------
+# データセットの準備
+# --------------------
+# TensorFlow flowers データセットを使用
 data_root = tf.keras.utils.get_file(
-    'flower_photos', _url, cache_dir='./', cache_subdir='in', untar=True)
+  'flower_photos',
+  'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz',
+   untar=True)
 
 logger.info(f'data_root:{data_root}')
 
-# データ読み込み用のジェネレーターを定義
-IMAGE_SHAPE = (224, 224)
+batch_size = 32
+img_height = 224
+img_width = 224
 
-image_generator = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1/255)
-image_data = image_generator.flow_from_directory(str(data_root), target_size=IMAGE_SHAPE)
+# 学習データの取得
+train_ds = tf.keras.utils.image_dataset_from_directory(
+  str(data_root),
+  validation_split=0.2,
+  subset="training",
+  seed=123,
+  image_size=(img_height, img_width),
+  batch_size=batch_size
+)
 
-for image_batch, label_batch in image_data:
+# 検証データの取得
+val_ds = tf.keras.utils.image_dataset_from_directory(
+  str(data_root),
+  validation_split=0.2,
+  subset="validation",
+  seed=123,
+  image_size=(img_height, img_width),
+  batch_size=batch_size
+)
+
+# flowers データセットには 5 つのクラスがある
+class_names = np.array(train_ds.class_names)
+print(class_names)
+
+# 値を0~1の範囲に正規化
+normalization_layer = tf.keras.layers.Rescaling(1./255)
+train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y)) # Where x—images, y—labels.
+val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y)) # Where x—images, y—labels.
+
+# 効率的な入力パイプラインの作成
+AUTOTUNE = tf.data.AUTOTUNE
+train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
+val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+
+for image_batch, labels_batch in train_ds:
   logger.info(f'Image batch shape: {image_batch.shape}')
-  logger.info(f'Label batch shape: {label_batch.shape}')
+  logger.info(f'Label batch shape: {labels_batch.shape}')
   break
 
-# ----------------------------------------
-# モデルの構築(転移学習)
-# ----------------------------------------
-# 学習済モデルの取得
-_url = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/2" #@param {type:"string"}
-base_layer = hub.KerasLayer(_url, input_shape=(224,224,3))
-base_layer.trainable = False
+# --------------------
+# 事前学習済モデルの準備
+# --------------------
+# ヘッドレスモデルのダウンロード
+mobilenet_v2 = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4"
+inception_v3 = "https://tfhub.dev/google/tf2-preview/inception_v3/feature_vector/4"
+feature_extractor_model = mobilenet_v2
 
-# モデルの構築(全結合層の追加)
+# 事前学習済みモデルを Keras レイヤーとしてラップし、特徴量抽出器を作成
+feature_extractor_layer = hub.KerasLayer(
+    feature_extractor_model,
+    input_shape=(224, 224, 3),
+    trainable=False)
+
+# 分類用に全結合層を追加
+num_classes = len(class_names)
+
 model = tf.keras.Sequential([
-  base_layer,
-  layers.Dense(image_data.num_classes, activation='softmax')
+  feature_extractor_layer,
+  tf.keras.layers.Dense(num_classes)
 ])
 model.summary(print_fn=logger.info)
 
+# --------------------
+# モデルのトレーニング
+# --------------------
 model.compile(
   optimizer=tf.keras.optimizers.Adam(),
-  loss='categorical_crossentropy',
+  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
   metrics=['acc'])
 
-# 独自で損失を取得するためのコールバック
-class CollectBatchStats(tf.keras.callbacks.Callback):
-  def __init__(self):
-    self.batch_losses = []
-    self.batch_acc = []
-
-  def on_train_batch_end(self, batch, logs=None):
-    self.batch_losses.append(logs['loss'])
-    self.batch_acc.append(logs['acc'])
-    self.model.reset_metrics()
-
-batch_stats_callback = CollectBatchStats()
-
-# TensorBoard用コールバック。起動はターミナルで以下を入力
-# tensorboard --logdir='./out/fit'
 log_dir = "./out/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+tensorboard_callback = tf.keras.callbacks.TensorBoard(
+    log_dir=log_dir,
+    histogram_freq=1) # Enable histogram computation for every epoch.
 
-# 1エポックあたりステップ数
-steps_per_epoch = np.ceil(image_data.samples/image_data.batch_size)
+NUM_EPOCHS = 10
 
-# ----------------------------------------
-# 学習
-# ----------------------------------------
-history = model.fit_generator(image_data, epochs=2,
-                              steps_per_epoch=steps_per_epoch,
-                              callbacks = [batch_stats_callback, tensorboard_callback])
+history = model.fit(train_ds,
+                    validation_data=val_ds,
+                    epochs=NUM_EPOCHS,
+                    callbacks=tensorboard_callback)
 
-logger.info('batch_losses:')
-logger.info(batch_stats_callback.batch_losses)
-logger.info('batch_acc:')
-logger.info(batch_stats_callback.batch_acc)
-
-# ----------------------------------------
-# 結果確認
-# ----------------------------------------
-# 損失をグラフ化
-plt.figure()
-plt.ylabel("Loss")
-plt.xlabel("Training Steps")
-plt.ylim([0,2])
-plt.plot(batch_stats_callback.batch_losses)
-plt.savefig('./out/fig_loss.png')
-
-# 正解率をグラフ化
-plt.figure()
-plt.ylabel("Accuracy")
-plt.xlabel("Training Steps")
-plt.ylim([0,1])
-plt.plot(batch_stats_callback.batch_acc)
-plt.savefig('./out/fig_acc.png')
-
-# ----------------------------------------
+# --------------------
 # 予測
-# ----------------------------------------
-class_names = sorted(image_data.class_indices.items(), key=lambda pair:pair[1])
-class_names = np.array([key.title() for key, value in class_names])
-logger.info(f'class_names:{class_names}')
-
+# --------------------
+# 予測を行いクラス番号のリストを取得
 predicted_batch = model.predict(image_batch)
-predicted_id = np.argmax(predicted_batch, axis=-1)
+predicted_id = tf.math.argmax(predicted_batch, axis=-1)
 predicted_label_batch = class_names[predicted_id]
+print(predicted_label_batch)
 
-label_id = np.argmax(label_batch, axis=-1)
-
-# 予測結果(イメージ)を保存
+# イメージとラベルを保存
 plt.figure(figsize=(10,9))
 plt.subplots_adjust(hspace=0.5)
+
 for n in range(30):
   plt.subplot(6,5,n+1)
   plt.imshow(image_batch[n])
-  color = "green" if predicted_id[n] == label_id[n] else "red"
-  plt.title(predicted_label_batch[n].title(), color=color)
+  plt.title(predicted_label_batch[n].title())
   plt.axis('off')
-_ = plt.suptitle("Model predictions (green: correct, red: incorrect)")
+_ = plt.suptitle("Model predictions")
 plt.savefig('./out/predict.png')
 
-# ----------------------------------------
+# --------------------
+# 学習済モデルの保存と再利用
+# --------------------
 # モデルのエクスポート
-# ----------------------------------------
-import time
 t = time.time()
 
-export_path = "./out/{}".format(int(t))
-model.save(export_path, save_format='tf')
-logger.info(f'export_path:{export_path}')
+export_path = "./out/saved_models/{}".format(int(t))
+model.save(export_path)
 
-# リロードできる。エクスポート前と同じ結果が得られる
+export_path
+
+# SavedModel を再読み込みできることと、モデルが同じ結果を出力できることを確認
 reloaded = tf.keras.models.load_model(export_path)
 
 result_batch = model.predict(image_batch)
 reloaded_result_batch = reloaded.predict(image_batch)
 
-diff = abs(reloaded_result_batch - result_batch).max()
+abs(reloaded_result_batch - result_batch).max()
 
-logger.info(f'diff: {diff}')
+# 予測を行いクラス番号のリストを取得
+reloaded_predicted_id = tf.math.argmax(reloaded_result_batch, axis=-1)
+reloaded_predicted_label_batch = class_names[reloaded_predicted_id]
+print(reloaded_predicted_label_batch)
+
+# イメージとラベルを保存
+plt.figure(figsize=(10,9))
+plt.subplots_adjust(hspace=0.5)
+for n in range(30):
+  plt.subplot(6,5,n+1)
+  plt.imshow(image_batch[n])
+  plt.title(reloaded_predicted_label_batch[n].title())
+  plt.axis('off')
+_ = plt.suptitle("Model predictions")
+plt.savefig('./out/predict2.png')
 
 # 全体の処理の実行時間を出力
 logger.info(f'total time: {time.perf_counter() - start}')
+# 1回目 275.6627539410001
+# 2回目 292.40264047100027
