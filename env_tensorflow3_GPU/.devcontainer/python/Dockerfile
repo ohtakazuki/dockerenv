@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest
+FROM tensorflow/tensorflow:latest-gpu
 
 # パッケージのインストール
 RUN apt-get update -qq \

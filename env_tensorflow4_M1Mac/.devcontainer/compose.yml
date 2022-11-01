@@ -1,8 +1,8 @@
 services:
   python:
-    image: tf2m1/python:1.0
+    image: tf4/python:1.0
     build: ./python
-    container_name: 'tf2m1-python'
+    container_name: 'tf4-python'
     ports:
       - '6006:6006'
     stdin_open: true

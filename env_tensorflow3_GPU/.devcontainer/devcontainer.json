@@ -1,5 +1,5 @@
 {
-  "name": "Tensorflow1 Python",
+  "name": "Tensorflow3_GPU Python",
   "dockerComposeFile": "compose.yml",
   "service": "python",
   "workspaceFolder": "/home/user1/dev",

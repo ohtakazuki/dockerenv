@@ -1,3 +1,7 @@
+import os
+# oneDNNを使用する
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+
 import matplotlib.pylab as plt
 import numpy as np
 import tensorflow as tf
@@ -180,5 +184,4 @@ plt.savefig('./out/predict2.png')
 
 # 全体の処理の実行時間を出力
 logger.info(f'total time: {time.perf_counter() - start}')
-# 1回目 275.6627539410001
-# 2回目 292.40264047100027
+

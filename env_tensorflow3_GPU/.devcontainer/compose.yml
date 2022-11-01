@@ -1,0 +1,16 @@
+services:
+  python:
+    image: tf3/python:1.0
+    build: ./python
+    container_name: 'tf3-python'
+    ports:
+      - '6006:6006'
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../python:/home/user1/dev
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]

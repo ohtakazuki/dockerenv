@@ -3,6 +3,8 @@ services:
     image: tf1/python:1.0
     build: ./python
     container_name: 'tf1-python'
+    ports:
+      - '6006:6006'
     stdin_open: true
     tty: true
     volumes:

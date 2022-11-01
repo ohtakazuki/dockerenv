@@ -1,5 +1,5 @@
 {
-  "name": "Tensorflow2 Python",
+  "name": "Tensorflow2_pip Python",
   "dockerComposeFile": "compose.yml",
   "service": "python",
   "workspaceFolder": "/home/user1/dev",
