@@ -35,7 +35,7 @@ def getnews():
       f.write(e.getText() + '\n')
 
 # 2分おきにスケジュールを定義
-schedule.every(2).minutes.do(getnews)
+schedule.every(5).seconds.do(getnews)
 
 # 実行を監視し、指定時間になったら関数を実行する
 while True:

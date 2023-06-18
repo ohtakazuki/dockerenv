@@ -5,8 +5,8 @@
 1. イメージのビルド<br>
    docker image build -t ex01/python:1.0 .
 
-2. コンテナの起動<br>
+2. コンテナーの起動<br>
    docker container run -it --rm ex01/python:1.0 /bin/bash
 
-3. コンテナの終了<br>
+3. コンテナーの終了<br>
    exit

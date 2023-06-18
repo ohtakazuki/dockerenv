@@ -3,10 +3,14 @@
   "dockerComposeFile": "compose.yml",
   "service": "python",
   "workspaceFolder": "/home/ubuntu/dev",
-  "extensions": [
-    "ms-python.python"
-  ],
-  "settings": {
-    "editor.tabSize": 2,
-  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python"
+      ],
+      "settings": {
+        "editor.tabSize": 2
+      }
+    }
+  }
 }

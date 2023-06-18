@@ -7,10 +7,10 @@ services:
       - "3306"
     environment:
       - TZ=Asia/Tokyo
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=my
-      - MYSQL_USER=my
-      - MYSQL_PASSWORD=my
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - ../db/database:/var/lib/mysql
       - ../db/init:/docker-entrypoint-initdb.d

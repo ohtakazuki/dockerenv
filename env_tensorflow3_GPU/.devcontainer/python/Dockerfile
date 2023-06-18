@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-gpu
+FROM tensorflow/tensorflow:2.12.0-gpu
 
 # パッケージのインストール
 RUN apt-get update -qq \

@@ -1,21 +1,21 @@
 services:
   db:
-    image: postgres:15.0-alpine
-    container_name: 'django-db'
+    image: postgres:alpine3.18
+    container_name: "django-db"
     expose: 
       - "5432"
     environment:
       - TZ=Asia/Tokyo
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ../db/database:/var/lib/postgresql/data
       - ../db/init:/docker-entrypoint-initdb.d  
   web:
     image: django/web:1.0
     build: ./web
-    container_name: 'django-web'
+    container_name: "django-web"
     ports:
       - 8000:8000
     environment:
