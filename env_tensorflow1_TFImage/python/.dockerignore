@@ -1,0 +1,15 @@
+# Docker イメージのビルドコンテキストから除外するファイル/ディレクトリ
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.vscode/
+*.log
+.pytest_cache/
+out/ 
+in/ 
+.keras/

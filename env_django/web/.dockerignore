@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3 # Default SQLite file if used initially
+env/
+venv/
+.env* # Exclude .env files from image
+.vscode/
+*.log
+log/ # Django log directory if created
+media/ # User uploaded files (usually volume mounted)
+static_root/ # Collected static files (usually volume mounted or handled by web server)
+
+# OS specific
+.DS_Store
+Thumbs.db

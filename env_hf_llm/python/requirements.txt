@@ -1,0 +1,30 @@
+# PyTorch (CPU 版がデフォルトでインストールされるはず)
+# 特定のバージョンが必要な場合は指定: torch==2.1.0 など
+torch
+
+# Hugging Face ライブラリ
+transformers
+datasets
+# モデルロードや分散実行の補助
+accelerate
+
+# その他、モデルによって必要な場合があるライブラリ
+# T5, ALBERT, XLNet などで使用
+sentencepiece
+# TensorFlow モデルや一部 ONNX モデル等で使用
+protobuf
+
+# (任意) スクリプト実行や開発に便利なライブラリ
+# .env ファイル読み込み
+python-dotenv
+# VS Code でノートブックセルを実行する場合
+ipykernel 
+
+# --- GPU 利用時の補足 ---
+# GPU 版 PyTorch を使う場合 (Dockerfile のベースイメージも要変更):
+# 例: torch==2.1.0+cu118 -f https://download.pytorch.org/whl/torch_stable.html
+# (バージョンは CUDA バージョンに合わせて選択)
+
+# 量子化ライブラリ (GPU ほぼ必須):
+# bitsandbytes
+# auto-gptq

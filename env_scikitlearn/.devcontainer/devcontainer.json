@@ -1,16 +1,32 @@
 {
-  "name": "Sklearn Python",
+  "name": "Scikit-learn Python Env",
+  // compose.yml ファイルへの相対パス
   "dockerComposeFile": "compose.yml",
+  // 使用するサービス名
   "service": "python",
-  "workspaceFolder": "/home/user1/dev",
+  // コンテナ内のワークスペースフォルダ (Dockerfile の WORKDIR と一致)
+  "workspaceFolder": "/app",
+  // コンテナ内で VS Code 接続に使用するユーザー (Dockerfile の USER と一致)
+  "remoteUser": "appuser",
+
+  // VS Code のカスタマイズ
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python"
+        // 必要に応じて他の拡張機能を追加 (例: データサイエンス系)
+        // "ms-toolsai.jupyter"
       ],
       "settings": {
-        "editor.tabSize": 2
+        // Python 推奨のインデント幅
+        "editor.tabSize": 4, 
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true
+        // 必要に応じてフォーマッタ (black, ruff) 等の設定を追加
       }
     }
   }
+  // (任意) コンテナ作成後のセットアップコマンド
+  // "postCreateCommand": "echo 'Container created!'"
 }

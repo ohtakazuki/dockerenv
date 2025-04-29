@@ -1,23 +1,29 @@
 services:
   db:
-    image: postgres:alpine3.16
+    image: postgres:17.4-alpine
     container_name: 'ex11-db'
-    expose: 
+    expose:
       - "5432"
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   python:
-    image: ex11/python:1.0
-    build: ./python
+    # image: ex11/python:1.0 # 必要であればイメージ名を変更
+    build:
+      context: ./python
+      dockerfile: Dockerfile # Dockerfile名を明示 (デフォルト名なら省略可)
     container_name: 'ex11-python'
-    working_dir: '/tmp/work'
     volumes:
-      - ./python/src:/tmp/work
+      # ホストの ./python/src ディレクトリをコンテナの /app/src にマウントする
+      # これにより、Dockerfile の COPY ./src ./src の内容が
+      # 開発中はホスト側のファイルで上書きされ、即時反映される
+      - ./python/src:/app/src
     depends_on:
       - db
-    stdin_open: true
-    tty: true
-    command: /bin/bash
+    environment:
+      PYTHONUNBUFFERED: 1 # Dockerfileでも設定したが、Composeでも明示可能
+      # .env ファイルから読み込んだ変数を使ってDATABASE_URLを構築
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${POSTGRES_DB}
+    command: ["sleep", "infinity"]

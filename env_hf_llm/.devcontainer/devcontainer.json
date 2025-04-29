@@ -1,0 +1,34 @@
+{
+    "name": "Hugging Face LLM (CPU)",
+    "dockerComposeFile": "compose.yml",
+    "service": "llm_service", // compose.yml で定義したサービス名
+    "workspaceFolder": "/app", // compose.yml の working_dir と一致
+    "remoteUser": "appuser",  // Dockerfile で作成した非 root ユーザー
+  
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "ms-python.python", // Python 拡張機能
+          "ms-azuretools.vscode-docker" // (任意) Docker 拡張機能
+        ],
+        "settings": {
+          "editor.tabSize": 4,
+          "python.defaultInterpreterPath": "/usr/local/bin/python", // ベースイメージに合わせて調整
+          "python.linting.pylintEnabled": true,
+          "python.linting.enabled": true
+          // (任意) Jupyter Notebook を使う場合の設定
+          // "jupyter.jupyterServerType": "local"
+        }
+      }
+    }
+    // (任意) API サーバー等を立てる場合にポートフォワード
+    // "forwardPorts": [8000],
+  
+    // --- GPU 利用時の補足 ---
+    // compose.yml の deploy 設定が優先されるべきですが、
+    // runArgs で GPU を指定する方法もあります (参考)。
+    // "runArgs": ["--gpus", "all"]
+  
+    // (任意) コンテナ作成後のコマンド
+    // "postCreateCommand": "echo 'Container created!'"
+}

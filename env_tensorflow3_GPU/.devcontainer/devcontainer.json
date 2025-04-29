@@ -1,16 +1,31 @@
 {
-  "name": "Tensorflow3_GPU Python",
+  "name": "TensorFlow Env (GPU)",
   "dockerComposeFile": "compose.yml",
   "service": "python",
-  "workspaceFolder": "/home/user1/dev",
+  // workspaceFolder を /app に更新
+  "workspaceFolder": "/app",
+  // remoteUser を appuser に設定
+  "remoteUser": "appuser",
+
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-python.python"
+        "ms-python.python",
+        // (任意) NVIDIA GPU 関連の情報を表示する拡張機能
+        // "ms-toolsai.nvidia-gpu-monitor"
       ],
       "settings": {
-        "editor.tabSize": 2
+        "editor.tabSize": 4,
+        // TF-GPUイメージ内のPythonパスを確認して設定
+        "python.defaultInterpreterPath": "/usr/bin/python3", // 要確認
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true
       }
     }
-  }
+  },
+  // TensorBoard 用のポートをフォワード
+  "forwardPorts": [6006]
+  
+  // runArgs を使った GPU 指定 (Compose の deploy 設定が優先されるべきだが、参考として)
+  // "runArgs": ["--gpus", "all"]
 }

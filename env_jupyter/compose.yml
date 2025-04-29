@@ -1,12 +1,43 @@
 services:
   jupyter:
-    image: jupyter/notebook:1.0
-    build: .
-    container_name: 'jupyter-notebook'
+    build:
+      # ビルドコンテキスト: compose.yml と同じディレクトリ
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'jupyter_notebook_dev' # コンテナ名を変更 (任意)
+    working_dir: /home/jovyan/work # コンテナ内の作業ディレクトリ (Dockerfileと一致)
     ports:
-      - 8888:8888
-    working_dir: '/home/user1/notebook'
+      # Jupyter Notebook サーバーのポートをホストに公開
+      - "8888:8888" 
     volumes:
-      - ./notebook:/home/user1/notebook
-    command: jupyter notebook --port 8888 --ip=0.0.0.0 --no-browser --NotebookApp.token=''
+      # ホストの notebook ディレクトリをコンテナ内の作業ディレクトリにマウント
+      - ./notebook:/home/jovyan/work
+    # 環境変数 (任意: パスワード設定などに利用可能)
+    # .env ファイルで定義することを推奨
+    # environment:
+    #   - JUPYTER_PASSWORD=your_secure_password # パスワードを設定する場合
+    #   - GEN_CERT=yes # HTTPS を有効にする場合 (自己署名証明書)
 
+    # Jupyter Notebook サーバー起動コマンド
+    # --ip=0.0.0.0 : コンテナ外からのアクセスを許可
+    # --port=8888 : 公開ポート
+    # --no-browser : コンテナ内でブラウザを起動しない
+    # --notebook-dir : ノートブックのルートディレクトリを指定
+    # --allow-root : (注意) ベースイメージや実行ユーザーが root の場合に必要だが、非root推奨
+    # --NotebookApp.token='' は削除し、トークン認証を有効化 (推奨)
+    # --NotebookApp.password='' : ハッシュ化パスワードを環境変数で設定する場合などに使用
+
+    command: >
+      jupyter lab 
+      --port=8888 
+      --ip=0.0.0.0 
+      --no-browser 
+      --notebook-dir=/home/jovyan/work
+
+    # パスワード認証を使う場合は以下のコメントを解除し、
+    # 対応する環境変数 JUPYTER_PASSWORD またはハッシュ化パスワードを設定
+    # --NotebookApp.password='' 
+
+# (任意) 名前付きボリューム (キャッシュ等に使いたい場合)
+# volumes:
+#   jupyter_cache: 

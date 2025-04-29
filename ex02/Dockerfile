@@ -1,20 +1,20 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # 作業ディレクトリを変更
 WORKDIR /tmp/mydir
 
 # ファイルのコピー
-COPY requirements.txt ${PWD}
+COPY requirements.txt .
 
 # pip自体のアップデート
-RUN pip install -U pip
+# --no-cache-dir: pipのキャッシュを使わない (イメージサイズ削減)
+RUN pip install --no-cache-dir -U pip
 
 # pythonのパッケージをインストール
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # 一時変数の定義
 ARG wdir
 
 # 作業ディレクトリを変更
 WORKDIR $wdir
-

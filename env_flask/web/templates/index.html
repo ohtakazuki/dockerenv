@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BookList</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookList</title>
 </head>
 <body>
-  <table border="1">
-  {% for book in books %}
-    <tr><td>{{ book[0] }}</td><td>{{ book[1] }}</td><td>{{ book[2] }}</td></tr>
-  {% endfor %}
-  </table>
+    <h1>書籍一覧 (MySQL)</h1>
+    <table border="1">
+        <thead>
+            <tr><th>ID</th><th>タイトル</th><th>登録日時</th></tr>
+        </thead>
+        <tbody>
+        {% for book in books %}
+            <tr><td>{{ book[0] }}</td><td>{{ book[1] }}</td><td>{{ book[2] }}</td></tr>
+        {% else %}
+            <tr><td colspan="3">書籍が見つかりません。</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

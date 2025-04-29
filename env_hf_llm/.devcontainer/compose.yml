@@ -1,0 +1,49 @@
+services:
+  llm_service: # サービス名は任意
+    build:
+      # ビルドコンテキスト: compose.yml から見て ../python ディレクトリ
+      context: ../python
+      dockerfile: Dockerfile
+    container_name: 'hf_llm_cpu_dev'
+    # 作業ディレクトリ (Dockerfile の WORKDIR と一致させる)
+    working_dir: /app
+
+    # コンテナを開発用に起動し続ける
+    command: sleep infinity
+
+    volumes:
+      # ホストの python ディレクトリをコンテナの /app にマウント
+      - ../python:/app
+      # Hugging Face のキャッシュを名前付きボリュームで永続化
+      # モデルやデータセットの再ダウンロードを防ぐ
+      # パスは Dockerfile で作成するユーザーと場所に合わせて調整
+      - hf_cache:/home/appuser/.cache/huggingface
+
+    environment:
+      # (任意) .env ファイルから環境変数を読み込む
+      # 例: プライベートモデルアクセス用のトークンなど
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+      # Transformers ライブラリのキャッシュ場所を指定 (任意だが推奨)
+      - TRANSFORMERS_CACHE=/home/appuser/.cache/huggingface/transformers
+      # datasets 等も含む場合
+      - HF_HOME=/home/appuser/.cache/huggingface
+
+    # (任意) APIサーバー等を立てる場合にポートを公開
+    # ports:
+    #   - "8000:8000"
+
+    # --- GPU 利用時の補足 ---
+    # NVIDIA GPU を利用する場合は、以下の deploy セクションのコメントを解除し、
+    # ホスト環境に NVIDIA ドライバーと NVIDIA Container Toolkit が
+    # セットアップされている必要があります。
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all # or 1 など特定の数を指定
+    #           capabilities: [gpu]
+
+# Hugging Face キャッシュ永続化用の名前付きボリューム定義
+volumes:
+  hf_cache:

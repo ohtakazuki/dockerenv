@@ -1,2 +1,24 @@
-/db/database
-/web/log
+# Python / Django
+/web/__pycache__/
+/web/*.pyc
+/web/*.pyo
+/web/*.pyd
+/web/db.sqlite3
+/web/env/
+/web/venv/
+/web/.env*
+/web/.pytest_cache/
+/web/log/
+/web/media/
+/web/static_root/
+
+# Database Data (if bind mount were used - now using named volume)
+# /db/database/ # Now managed by named volume, gitignore might be less critical
+
+# Dev Container
+.devcontainer/.cache/
+.devcontainer/.history*/
+
+# OS specific
+.DS_Store
+Thumbs.db

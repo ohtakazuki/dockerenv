@@ -2,23 +2,28 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Django",
+      "name": "Python: Django Runserver",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/manage.py",
+      // manage.py のパスを workspaceFolder からの相対パスで指定
+      "program": "${workspaceFolder}/manage.py", 
       "args": [
         "runserver",
-        "0.0.0.0:8080",
-        "--noreload"
+        "0.0.0.0:8000", // 公開するポート番号
+        "--noreload" // Dev Containers では autoreload が不安定な場合があるため推奨
       ],
-      "django": true
+      "django": true,
+      // "justMyCode": false // Django 内部のコードにステップインしたい場合 (任意)
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
     },
     {
-      "name": "Python",
+      "name": "Python: Current File", // Django 以外の Python スクリプト用
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "internalConsole"
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
     }
   ]
 }

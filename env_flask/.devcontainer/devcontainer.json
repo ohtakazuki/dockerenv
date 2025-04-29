@@ -1,16 +1,32 @@
 {
-  "name": "Flask Web",
-  "dockerComposeFile": "compose.yml",
+  "name": "Flask + MySQL Env",
+  // compose.yml ファイルへの相対パス
+  "dockerComposeFile": "compose.yml", 
+  // 接続先のサービス (Flask アプリケーション)
   "service": "web",
-  "workspaceFolder": "/home/user1/dev",
+  // コンテナ内のワークスペースフォルダ (Dockerfile の WORKDIR と一致)
+  "workspaceFolder": "/app",
+  // コンテナ内で VS Code 接続に使用するユーザー (Dockerfile の USER と一致)
+  "remoteUser": "appuser",
+
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python"
+        // (任意) Flask 開発に役立つ拡張機能
+        // "ms-azuretools.vscode-docker" // Docker 拡張機能
       ],
       "settings": {
-        "editor.tabSize": 2
+        "editor.tabSize": 4,
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true
+        // (任意) Jinja テンプレート用の設定など
+        // "files.associations": { "*.html": "jinja-html" },
+        // "emmet.includeLanguages": { "jinja-html": "html" }
       }
     }
-  }
+  },
+  // Flask 開発サーバーと DB ポートをフォワード (任意)
+  "forwardPorts": [5000, 3306] // MySQL のデフォルトポート 3306 も追加
 }

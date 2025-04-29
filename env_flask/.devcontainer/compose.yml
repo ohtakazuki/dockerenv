@@ -1,27 +1,73 @@
 services:
   db:
-    image: flask/mysql:1.0
-    build: ./db
-    container_name: 'flask-db'
+    # MySQL イメージを使う場合はこちらを有効化
+    # image: mysql:9.3
+    # カスタムDockerfileを使う場合はこちらを有効化
+    build: 
+      context: ../db
+      dockerfile: Dockerfile
+    container_name: "flask_db_dev" 
+    # ポートは内部公開のみ (web サービスからアクセス)
     expose: 
       - "3306"
     environment:
-      - TZ=Asia/Tokyo
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      # .env ファイルから読み込む
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      # タイムゾーン設定 (コンテナレベルでも設定可能)
+      TZ: Asia/Tokyo 
     volumes:
-      - ../db/database:/var/lib/mysql
-      - ../db/init:/docker-entrypoint-initdb.d
+      # DB データを名前付きボリュームで永続化
+      - db_data:/var/lib/mysql 
+      # 初期化 SQL スクリプトをマウント
+      - ../db/init:/docker-entrypoint-initdb.d 
+    # ヘルスチェックを追加して、DB が準備完了するまで待機
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"] # USER/PASSを使う場合
+      # test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"] # root パスワードなしの場合など
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s # 起動直後の猶予時間
+
   web:
-    image: flask/web:1.0
-    build: ./web
-    container_name: 'flask-web'
+    build:
+      # ビルドコンテキスト: compose.yml から見て ../web ディレクトリ
+      context: ../web
+      dockerfile: Dockerfile
+    container_name: "flask_web_dev" 
+    # 作業ディレクトリ
+    working_dir: /app
     ports:
-      - 5000:5000
-    stdin_open: true
-    tty: true
+      # Flask 開発サーバーのポートをホストに公開
+      - "5000:5000"
+    environment:
+      # DB 接続情報 (app.py が参照)
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_HOST: db # db サービスのサービス名
+      # Flask 設定
+      FLASK_APP: app.py # app.py で定義する場合や ENV で設定する場合もある
+      FLASK_ENV: development # デバッグモード有効化
+      # Python ログ設定
+      PYTHONUNBUFFERED: 1
     volumes:
-      - ../web:/home/user1/dev
- 
+      # ホストの web ディレクトリ全体をコンテナの /app にマウント
+      # Source path is relative to compose.yml file
+      - ../web:/app
+    # db サービスが healthy になるまで待機
+    depends_on:
+      db:
+        condition: service_healthy 
+    
+    # コンテナを開発用に起動し続ける
+    command: sleep infinity 
+    # (または Flask 開発サーバーを直接起動する場合)
+    # command: flask run --host=0.0.0.0 --port=5000
+
+# DB データ永続化用の名前付きボリューム
+volumes:
+  db_data:

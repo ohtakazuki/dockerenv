@@ -1,29 +1,63 @@
 services:
   db:
-    image: postgres:alpine3.18
-    container_name: "django-db"
+    image: postgres:17.4-alpine
+    container_name: "django_db_dev" # コンテナ名を変更 (任意)
+    # ポートは内部公開のみ (web サービスからアクセス)
     expose: 
       - "5432"
     environment:
-      - TZ=Asia/Tokyo
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      # .env ファイルから読み込む
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # タイムゾーン設定
+      TZ: Asia/Tokyo 
     volumes:
-      - ../db/database:/var/lib/postgresql/data
-      - ../db/init:/docker-entrypoint-initdb.d  
+      # DB データを名前付きボリュームで永続化
+      - db_data:/var/lib/postgresql/data 
+      # 初期化 SQL スクリプトをマウント
+      - ../db/init:/docker-entrypoint-initdb.d 
+    # (任意) ヘルスチェックを追加して、DB が準備完了するまで待機可能にする
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   web:
-    image: django/web:1.0
-    build: ./web
-    container_name: "django-web"
+    build:
+      # ビルドコンテキストを ../web に更新
+      context: ../web
+      dockerfile: Dockerfile
+    container_name: "django_web_dev" # コンテナ名を変更 (任意)
+    # 作業ディレクトリを /app に更新
+    working_dir: /app
     ports:
-      - 8000:8000
+      # Django 開発サーバーのポートをホストに公開
+      - "8000:8000"
     environment:
+      # Django 設定 (デバッグモード有効)
       - DEBUG=1
-    depends_on:
-      - db
-    stdin_open: true
-    tty: true
+      # .env ファイルから読み込む (settings.py で参照する場合)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB} # @db はサービス名
+      - DJANGO_SETTINGS_MODULE=myprj.settings # settings.py の場所
+      - PYTHONUNBUFFERED=1 # Dockerfileでも設定したが念のため
     volumes:
-      - ../web:/home/user1/dev
- 
+      # ホストの web ディレクトリ全体をコンテナの /app にマウント
+      # Source path is relative to compose.yml file
+      - ../web:/app
+    # db サービスが healthcheck で healthy になるまで待機 (任意だが推奨)
+    depends_on:
+      db:
+        condition: service_healthy # healthcheck を使う場合
+    # depends_on: # healthcheck を使わない場合はこちら
+    #   - db
+    
+    # コンテナを開発用に起動し続ける
+    command: sleep infinity 
+    # (または、開発サーバーを直接起動する場合)
+    # command: python manage.py runserver 0.0.0.0:8000
+
+# DB データ永続化用の名前付きボリューム
+volumes:
+  db_data: 

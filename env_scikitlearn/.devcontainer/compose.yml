@@ -1,10 +1,30 @@
 services:
   python:
-    image: sklearn/python:1.0
-    build: ./python
-    container_name: 'sklearn-python'
-    stdin_open: true
-    tty: true
+    build:
+      # ビルドコンテキスト: compose.yml から見て ../python ディレクトリ
+      context: ../python
+      dockerfile: Dockerfile
+    
+    # コンテナ内の作業ディレクトリ
+    working_dir: /app 
+    
+    # コンテナを開発用に起動し続ける
+    command: sleep infinity
+
     volumes:
-      - ../python:/home/user1/dev
- 
+      # ホストの python ディレクトリ全体をコンテナの /app にマウント
+      # (開発時のコード/設定ファイルの即時反映用)
+      - ../python:/app
+      # (任意) 名前付きボリュームでキャッシュ等を永続化する場合
+      # - python_cache:/home/appuser/.cache 
+      
+    # コンテナ名を指定 (任意)
+    # container_name: 'sklearn-python-dev'
+
+    # 環境変数は .env ファイルや devcontainer.json で管理推奨
+    # environment:
+    #   - EXAMPLE_VAR=example_value
+
+# (任意) 名前付きボリュームの定義
+# volumes:
+#   python_cache:

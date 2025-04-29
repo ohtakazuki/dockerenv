@@ -1,0 +1,19 @@
+# Docker イメージのビルドコンテキストから除外するファイル/ディレクトリ
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.env* # .env ファイルはイメージに含めない
+.vscode/
+*.log
+log/ 
+instance/ # Flask instance folder
+.pytest_cache/
+out/ # このプロジェクトでは未使用
+in/  # このプロジェクトでは未使用
+
+# OS specific
+.DS_Store
+Thumbs.db

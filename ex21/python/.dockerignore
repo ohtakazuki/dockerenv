@@ -1,0 +1,43 @@
+# Docker イメージのビルドコンテキストから除外するファイル/ディレクトリ
+
+# Git
+.git
+.gitignore
+
+# Python関係
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+.ipynb_checkpoints
+
+# エディタ関係
+# .vscode/  # launch.json がコンテナ内で必要なため
+.idea/
+*.swp
+*.swo
+
+# OS関連
+.DS_Store
+Thumbs.db
+
+# ログ、一時ファイル
+*.log
+tmp/
+
+# 環境変数
+.env*
+
+# テスト、リロード
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ビルド関係
+dist/
+build/
+*.whl

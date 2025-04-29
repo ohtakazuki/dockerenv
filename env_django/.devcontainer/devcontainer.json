@@ -1,16 +1,32 @@
 {
-  "name": "Django Web",
+  "name": "Django + PostgreSQL Env",
+  // compose.yml ファイルへの相対パス
   "dockerComposeFile": "compose.yml",
+  // 接続先のサービス (Django アプリケーション)
   "service": "web",
-  "workspaceFolder": "/home/user1/dev",
+  // コンテナ内のワークスペースフォルダ (Dockerfile の WORKDIR と一致)
+  "workspaceFolder": "/app",
+  // コンテナ内で VS Code 接続に使用するユーザー (Dockerfile の USER と一致)
+  "remoteUser": "appuser",
+
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python"
+        // (任意) Django 開発に役立つ拡張機能
+        // "batisteo.vscode-django"
       ],
       "settings": {
-        "editor.tabSize": 2
+        "editor.tabSize": 4, // Python 推奨
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true
+        // (任意) Django 用の設定を追加可能
+        // "files.associations": { "*.html": "django-html" },
+        // "emmet.includeLanguages": { "django-html": "html" }
       }
     }
-  }
+  },
+  // Django 開発サーバーと DB ポートをフォワード (任意)
+  "forwardPorts": [8000, 5432]
 }

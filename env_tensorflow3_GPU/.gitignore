@@ -1,2 +1,20 @@
-/python/in
-/python/out
+/python/in/
+/python/out/
+/python/__pycache__/
+/python/*.pyc
+/python/*.pyo
+/python/*.pyd
+/python/.Python
+/python/env/
+/python/venv/
+/python/.env*
+/python/.pytest_cache/
+/python/.keras/ 
+
+# Dev Container キャッシュなど (任意)
+.devcontainer/.cache/
+.devcontainer/.history*/
+
+# OS specific
+.DS_Store
+Thumbs.db

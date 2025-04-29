@@ -1,6 +1,14 @@
-numpy == 1.25.0
-matplotlib == 3.7.1
-pandas == 2.0.2
-scikit-learn == 1.2.2
-jupyter == 1.0.0
-notebook == 6.5.4
+# データ分析・機械学習ライブラリ (必要に応じて)
+numpy==2.2.5
+matplotlib==3.10.1
+pandas==2.2.3
+scikit-learn==1.6.1
+
+# Jupyter Notebook 本体 (バージョン固定推奨)
+# notebook==7.4.1
+# JupyterLab を使う場合 (より高機能)
+jupyterlab==4.4.1
+
+# (任意) JupyterLab を使う場合、便利な拡張機能など
+# jupyterlab-git
+# ipywidgets
