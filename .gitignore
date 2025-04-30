@@ -4,10 +4,9 @@ __pycache__/
 *.pyd
 env/
 venv/
-.env* # .env ファイルはイメージに含めない
-.vscode/
 *.log
 log/ 
+datasets/
 instance/ # Flask instance folder
 .pytest_cache/
 out/

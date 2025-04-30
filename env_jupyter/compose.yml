@@ -28,7 +28,7 @@ services:
     # --NotebookApp.password='' : ハッシュ化パスワードを環境変数で設定する場合などに使用
 
     command: >
-      jupyter lab 
+      jupyter notebook 
       --port=8888 
       --ip=0.0.0.0 
       --no-browser 
