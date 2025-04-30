@@ -1,6 +1,6 @@
 # ベースイメージ: TensorFlow 公式イメージの GPU 対応版・特定バージョンを使用
 # 使用するホストドライバーと互換性のある CUDA バージョンを含むイメージを選択
-FROM tensorflow/tensorflow:2.19.0-gpu
+FROM tensorflow/tensorflow:2.16.1-gpu
 
 # タイムゾーン設定と追加で必要なOSパッケージ (tzdata) のインストール
 RUN apt-get update -qq && \

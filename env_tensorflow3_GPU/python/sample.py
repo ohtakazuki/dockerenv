@@ -22,7 +22,7 @@ import numpy as np
 import PIL.Image as Image
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import tensorflow_hub as hub
+# import tensorflow_hub as hub # <-- 削除
 import datetime
 import pathlib
 
@@ -37,8 +37,7 @@ LOG_CONF_FILE = "logging.conf"
 CACHE_DIR = '.' # データセットのキャッシュ先
 
 # 特徴抽出器モデルのURL (MobileNetV2を使用)
-FEATURE_EXTRACTOR_MODEL_URL = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4"
-
+# FEATURE_EXTRACTOR_MODEL_URL = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4" # <-- 削除
 
 # --------------------
 # ログ設定
@@ -79,12 +78,12 @@ def main():
         logger.info(f"クラス名: {class_names}")
 
         # データセットからサンプルバッチを取得 (形状確認と後続処理用)
-        for image_batch, labels_batch in train_ds.take(1):
-            logger.info(f"画像バッチの形状: {image_batch.shape}")
-            logger.info(f"ラベルバッチの形状: {labels_batch.shape}")
-            # 後で予測やプロットに使用するために保持
-            sample_image_batch, sample_labels_batch = image_batch, labels_batch
-            break # 1バッチ取得すれば十分
+        # for image_batch, labels_batch in train_ds.take(1):
+        #     logger.info(f"画像バッチの形状: {image_batch.shape}")
+        #     logger.info(f"ラベルバッチの形状: {labels_batch.shape}")
+        #     # 後で予測やプロットに使用するために保持
+        #     # sample_image_batch, sample_labels_batch = image_batch, labels_batch
+        #     break # 1バッチ取得すれば十分
         logger.info("データセットの準備が完了しました。")
 
     except Exception as e:
@@ -96,7 +95,7 @@ def main():
     try:
         model = build_model(len(class_names))
         # モデルのサマリーをログに出力
-        model.summary(print_fn=logger.info)
+        model.summary(print_fn=lambda x, **kwargs: logger.info(x))
         logger.info("モデルの構築が完了しました。")
     except Exception as e:
         logger.error(f"モデル構築中にエラーが発生しました: {e}", exc_info=True)
@@ -115,7 +114,7 @@ def main():
     # --- トレーニング済みモデルでの予測と結果保存 ---
     logger.info("トレーニング済みモデルで予測を実行し、結果をプロット・保存します...")
     try:
-        # 検証データセットからサンプルバッチを取得 (トレーニング中に使用したものとは別の場合がある)
+        # 検証データセットからサンプルバッチを取得
         pred_image_batch, _ = next(iter(val_ds))
         predicted_labels = predict_and_plot(model, pred_image_batch, class_names, os.path.join(OUTPUT_DIR, "predictions.png"), "Model Predictions")
         logger.info(f"予測結果のサンプル (最初の5件): {predicted_labels[:5]}")
@@ -131,7 +130,7 @@ def main():
             reloaded_model = load_and_verify_model(export_path, pred_image_batch, class_names) # 同じバッチで検証
             if reloaded_model:
                 logger.info("再読み込みしたモデルでの予測と結果保存を実行します...")
-                predict_and_plot(reloaded_model, pred_image_batch, class_names, os.path.join(OUTPUT_DIR, "reloaded_predictions.png"), "再読み込みモデルの予測結果")
+                predict_and_plot(reloaded_model, pred_image_batch, class_names, os.path.join(OUTPUT_DIR, "reloaded_predictions.png"), "Reloaded Model Predictions")
         logger.info("モデルのエクスポートと検証が完了しました。")
     except Exception as e:
         logger.error(f"モデルのエクスポートまたは検証中にエラーが発生しました: {e}", exc_info=True)
@@ -153,7 +152,7 @@ def prepare_dataset():
       'flower_photos.tgz',
       'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz',
       cache_dir=CACHE_DIR, # カレントディレクトリにキャッシュ
-       extract=True)
+        extract=True)
     data_root = pathlib.Path(data_file).with_suffix('')
     logger.info(f"データセットを展開しました: {data_root}")
 
@@ -179,6 +178,9 @@ def prepare_dataset():
     class_names = np.array(train_ds.class_names)
 
     logger.info("データセットの前処理 (正規化、キャッシュ、プリフェッチ) を適用します...")
+    # 注意: MobileNetV2 は [-1, 1] の範囲の入力を期待することが多いですが、
+    # ここでは元コードに合わせて [0, 1] に正規化します。
+    # 必要であれば tf.keras.applications.mobilenet_v2.preprocess_input を使用してください。
     normalization_layer = tf.keras.layers.Rescaling(1./255)
     AUTOTUNE = tf.data.AUTOTUNE
 
@@ -190,33 +192,46 @@ def prepare_dataset():
 
     return train_ds, val_ds, class_names
 
+# --- ここから build_model 関数を修正 ---
 def build_model(num_classes):
-    """事前学習済みモデルをベースに、新しい分類ヘッドを持つ Keras モデルを構築する"""
-    logger.info(f"特徴抽出器レイヤーを作成します (モデル: {FEATURE_EXTRACTOR_MODEL_URL})...")
-    
-    # 低レベルのTensorFlow APIを使用してモデルを構築
+    """事前学習済みモデル(MobileNetV2)をベースに、新しい分類ヘッドを持つ Keras モデルを構築する"""
+    logger.info(f"特徴抽出器として tf.keras.applications.MobileNetV2 を使用します (ImageNet weights)...")
+
+    # 入力層を定義
     inputs = tf.keras.Input(shape=IMAGE_SHAPE + (3,))
-    
-    # 入力テンソルを具体的なテンソルに変換
-    x = tf.keras.layers.Lambda(lambda x: tf.convert_to_tensor(x))(inputs)
-    
-    # tf.functionでラップしたカスタム層を作成
-    @tf.function
-    def apply_feature_extractor(x):
-        feature_extractor = hub.load(FEATURE_EXTRACTOR_MODEL_URL)
-        return feature_extractor(x)
-    
-    # カスタム層を通して特徴ベクトルを取得
-    features = tf.keras.layers.Lambda(lambda x: apply_feature_extractor(x))(x)
-    
-    # 分類ヘッドを追加
-    outputs = tf.keras.layers.Dense(num_classes)(features)
-    
-    # モデルを作成
+
+    # MobileNetV2 ベースモデルをロード
+    # include_top=False: ImageNet用の最終分類層を除外
+    # weights='imagenet': ImageNetで事前学習された重みを使用
+    # pooling='avg': Global Average Poolingを適用し、出力をベクトル化
+    base_model = tf.keras.applications.MobileNetV2(
+        input_shape=IMAGE_SHAPE + (3,),
+        include_top=False,
+        weights='imagenet',
+        pooling='avg' # 特徴ベクトルを取得
+    )
+
+    # ベースモデルの重みをフリーズ (転移学習のため)
+    base_model.trainable = False
+    logger.info("MobileNetV2 ベースモデルの重みをフリーズしました。")
+
+    # 入力層をベースモデルに接続
+    # ベースモデルはトレーニングしないため training=False を指定
+    x = base_model(inputs, training=False)
+
+    # オプション: ベースモデルと最終層の間にドロップアウト層を追加 (過学習抑制)
+    # x = tf.keras.layers.Dropout(0.2)(x) # 必要に応じてレートを調整
+
+    # 新しい分類ヘッド (Dense レイヤー) を追加
+    # 活性化関数は指定せず、損失関数側で from_logits=True を使用
+    outputs = tf.keras.layers.Dense(num_classes)(x)
+
+    # モデル全体を定義
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
-    
-    logger.info("モデルの構築が完了しました...")
+
+    logger.info("モデルの構築が完了しました。")
     return model
+# --- build_model 関数の修正 ここまで ---
 
 def train_model(model, train_ds, val_ds):
     """モデルをコンパイルし、指定されたエポック数でトレーニングする"""
@@ -235,9 +250,9 @@ def train_model(model, train_ds, val_ds):
 
     logger.info(f"{NUM_EPOCHS} エポックのトレーニングを開始します...")
     history = model.fit(train_ds,
-                        validation_data=val_ds,
-                        epochs=NUM_EPOCHS,
-                        callbacks=[tensorboard_callback])
+                          validation_data=val_ds,
+                          epochs=NUM_EPOCHS,
+                          callbacks=[tensorboard_callback])
     return history
 
 def predict_and_plot(model, image_batch, class_names, save_path, title):
@@ -254,10 +269,10 @@ def predict_and_plot(model, image_batch, class_names, save_path, title):
 
     for n in range(num_images_to_plot):
         plt.subplot(6, 5, n + 1)
-        # Rescaling レイヤーの影響を元に戻して表示 (オプション)
+        # Rescaling レイヤーの影響を元に戻して表示する場合はコメント解除
         # img_display = image_batch[n] * 255.0
         # plt.imshow(tf.cast(img_display, tf.uint8))
-        plt.imshow(image_batch[n]) # 正規化された状態のまま表示
+        plt.imshow(image_batch[n]) # 正規化された状態のまま表示 ([0, 1] の範囲)
         plt.title(predicted_labels[n].title())
         plt.axis('off')
 
@@ -268,14 +283,19 @@ def predict_and_plot(model, image_batch, class_names, save_path, title):
     return predicted_labels # 予測ラベル配列を返す
 
 def export_model(model):
-    """モデルを SavedModel 形式でエクスポートする"""
+    """モデルを Keras V3 ネイティブ形式 (.keras) でエクスポートする"""
     try:
         timestamp = int(time.time())
-        export_dir = os.path.join(OUTPUT_DIR, "saved_models", str(timestamp))
-        logger.info(f"モデルを SavedModel 形式でエクスポートします: {export_dir}")
-        model.save(export_dir, save_format='tf')
+        export_filename = f"model_{timestamp}.keras"
+        # 保存先ディレクトリ (saved_models) を指定
+        save_dir = os.path.join(OUTPUT_DIR, "saved_models")
+        os.makedirs(save_dir, exist_ok=True)
+        export_path = os.path.join(save_dir, export_filename)
+
+        logger.info(f"モデルを Keras ネイティブ形式 (.keras) でエクスポートします: {export_path}")
+        model.save(export_path)
         logger.info("モデルのエクスポートが完了しました。")
-        return export_dir
+        return export_path
     except Exception as e:
         logger.error(f"モデルのエクスポート中にエラーが発生しました: {e}", exc_info=True)
         return None
@@ -288,18 +308,13 @@ def load_and_verify_model(export_path, image_batch_to_verify, class_names):
         logger.info("モデルの再読み込みが完了しました。")
 
         logger.info("再読み込みモデルの予測結果を検証します...")
-        # 元のモデルでの予測結果 (比較のため、メイン処理から渡すか再計算が必要)
-        # この例では再計算せず、再読み込みモデルの予測のみ行う
         reloaded_result_batch = reloaded_model.predict(image_batch_to_verify)
 
-        # 差分の比較 (オプション: 元のモデルの予測結果が必要)
-        # original_result_batch = model.predict(image_batch_to_verify) # 仮に model がスコープ内にある場合
+        # オプション: 元のモデルとの差分比較
+        # この関数内で元の 'model' にアクセスできないため、
+        # 差分比較が必要な場合は、元の予測結果も引数で渡す等の工夫が必要。
         # diff = abs(reloaded_result_batch - original_result_batch).max()
-        # logger.info(f"元のモデルと再読み込みモデルの予測結果の最大絶対差分: {diff}")
-        # if diff < 1e-6:
-        #     logger.info("再読み込みモデルの予測は元のモデルと一致しました。")
-        # else:
-        #     logger.warning("再読み込みモデルの予測が元のモデルと大きく異なります。")
+        # logger.info(f"予測結果の最大絶対差分: {diff}")
 
         reloaded_predicted_ids = tf.math.argmax(reloaded_result_batch, axis=-1)
         reloaded_predicted_labels = class_names[reloaded_predicted_ids]
@@ -316,10 +331,9 @@ def load_and_verify_model(export_path, image_batch_to_verify, class_names):
 if __name__ == "__main__":
     # 日本語環境での Matplotlib の設定 (オプション)
     try:
-        # フォントが見つからない場合のエラーを避けるため、存在確認や代替フォント指定を推奨
-        # 例: plt.rcParams['font.family'] = 'IPAexGothic' # 事前にインストールが必要
-        # plt.rcParams['font.sans-serif'] = ['IPAexGothic', 'sans-serif'] # 代替フォント
-        pass # ここでは特定のフォント設定は行わない
+        # 必要に応じて日本語フォントを設定
+        # 例: plt.rcParams['font.family'] = 'IPAexGothic'
+        pass
     except Exception as e:
         logger.warning(f"Matplotlib の日本語フォント設定中にエラーが発生しました: {e}")
 

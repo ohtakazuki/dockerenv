@@ -26,6 +26,6 @@
   // TensorBoard 用のポートをフォワード
   "forwardPorts": [6006]
   
-  // runArgs を使った GPU 指定 (Compose の deploy 設定が優先されるべきだが、参考として)
-  // "runArgs": ["--gpus", "all"]
+  // runArgs を使った GPU 指定
+  // "runArgs": ["--gpus=all"]
 }
