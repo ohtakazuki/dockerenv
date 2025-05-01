@@ -2,11 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python Basic",
+      "name": "Python: Current File", // デバッグ構成の名前を変更 (任意)
       "type": "python",
       "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole"
+      // "${workspaceFolder}" は /app を指すため、src/sample1.py をデバッグする場合は以下のように書くか、
+      // 現在開いているファイルを対象にする "${file}" を使う。
+      "program": "${file}", // 現在アクティブなファイルを実行
+      // "program": "${workspaceFolder}/src/sample1.py", // 特定のファイルを実行する場合
+      "console": "integratedTerminal" // VS Code 内の統合ターミナルを使用
     }
   ]
 }

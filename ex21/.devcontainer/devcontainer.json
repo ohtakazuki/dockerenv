@@ -1,16 +1,41 @@
 {
   "name": "Python Basic Project",
+  // compose.yml ファイルへの相対パス (devcontainer.json と同じディレクトリにある)
   "dockerComposeFile": "compose.yml",
+  // compose.yml 内で使用するサービス名
   "service": "python",
-  "workspaceFolder": "/tmp/work",
+  // VS Code を開いた際のコンテナ内のワークスペースフォルダ
+  "workspaceFolder": "/app", // Dockerfile の WORKDIR, compose.yml の volume mount 先と一致
+  // コンテナ内で VS Code サーバーやターミナルを実行するユーザー
+  "remoteUser": "appuser", // Dockerfile で作成した非rootユーザー
+
+  // VS Code のカスタマイズ設定
   "customizations": {
     "vscode": {
+      // コンテナ内で有効にする VS Code 拡張機能
       "extensions": [
-        "ms-python.python"
+        "ms-python.python",
+        // (任意) 他に推奨される拡張機能を追加:
+        // "ms-toolsai.jupyter",
+        // "njpwerner.autodocstring",
+        // "ms-azuretools.vscode-docker" 
       ],
+      // コンテナ内での VS Code 設定
       "settings": {
-        "editor.tabSize": 2
+        "editor.tabSize": 4, // Python推奨のタブサイズ
+        "python.defaultInterpreterPath": "/usr/local/bin/python", // 使用するPythonインタプリタのパス
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true
+        // その他、フォーマッタ (black, ruff) などの設定を追加可能
       }
     }
   }
+  // (任意) ポートフォワーディング設定
+  // "forwardPorts": [5000],
+
+  // (任意) コンテナ作成後のコマンド実行
+  // "postCreateCommand": "pip install --user -r requirements-dev.txt",
+
+  // (任意) コンテナ起動時のコマンド実行
+  // "postStartCommand": "echo 'Dev Container Started!'"
 }

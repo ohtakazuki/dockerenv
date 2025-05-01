@@ -1,12 +1,23 @@
 services:
   python:
-    image: tf1/python:1.0
-    build: ./python
-    container_name: 'tf1-python'
-    ports:
-      - '6006:6006'
-    stdin_open: true
-    tty: true
+    build:
+      # ビルドコンテキストを ../python に更新
+      context: ../python
+      dockerfile: Dockerfile
+    
+    # 作業ディレクトリを /app に更新
+    working_dir: /app
+    
+    # コンテナを開発用に起動し続ける
+    command: sleep infinity
+
     volumes:
-      - ../python:/home/user1/dev
- 
+      # ホストの python ディレクトリ全体をコンテナの /app にマウント
+      - ../python:/app
+
+    ports:
+      # TensorBoard 用のポートをホストに公開
+      - "6006:6006"
+      
+    # (任意) コンテナ名を指定
+    # container_name: 'tensorflow-tfimage-dev'

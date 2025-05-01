@@ -1,2 +1,20 @@
-__pycache__
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+*.log
+log/ 
+datasets/
+instance/ # Flask instance folder
+.pytest_cache/
+out/
+in/
+db.sqlite3
+.devcontainer/.cache/
+.devcontainer/.history*/
+
+# OS specific
 .DS_Store
+Thumbs.db

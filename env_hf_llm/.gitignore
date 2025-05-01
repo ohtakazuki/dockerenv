@@ -1,0 +1,59 @@
+# Python Artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+wheels/
+*.egg
+
+# Virtual Environments
+venv/
+env/
+.venv/
+
+# Secrets and Environment Variables
+.env*
+secrets.yaml
+*.credential
+
+# IDE / Editor specific files
+.vscode/*
+!.vscode/launch.json  # launch.json は共有する場合があるため、除外から外す (任意)
+!.vscode/settings.json # settings.json も共有する価値がある場合がある (任意)
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Cache directories
+.cache/
+# ホスト側に Hugging Face キャッシュディレクトリを作成した場合 (通常は Docker Volume を使うので不要なことが多い)
+# hf_cache/
+
+# Log files
+*.log
+logs/
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# Output files (もしスクリプトが特定の出力ディレクトリを使う場合)
+# output/
+# results/
+
+# Testing artifacts
+.pytest_cache/
+.coverage*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover

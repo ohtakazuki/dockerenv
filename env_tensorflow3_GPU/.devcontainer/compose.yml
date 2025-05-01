@@ -1,16 +1,32 @@
 services:
   python:
-    image: tf3/python:1.0
-    build: ./python
-    container_name: 'tf3-python'
-    ports:
-      - '6006:6006'
-    stdin_open: true
-    tty: true
+    build:
+      # ビルドコンテキストを ../python に更新
+      context: ../python
+      dockerfile: Dockerfile
+    
+    # 作業ディレクトリを /app に更新
+    working_dir: /app
+    
+    # コンテナを開発用に起動し続ける
+    command: sleep infinity
+
     volumes:
-      - ../python:/home/user1/dev
+      # ホストの python ディレクトリ全体をコンテナの /app にマウント
+      - ../python:/app
+
+    ports:
+      # TensorBoard 用のポートをホストに公開
+      - "6006:6006"
+      
+    # (任意) コンテナ名を指定
+    # container_name: 'tensorflow-gpu-dev'
+
+    # GPU リソースをコンテナに割り当てるための設定 (Docker Compose V2.3+ / specification)
     deploy:
       resources:
         reservations:
           devices:
-            - capabilities: [gpu]
+            - driver: nvidia
+              count: all # 利用可能な全ての GPU を割り当てる (特定の GPU を指定も可能)
+              capabilities: [gpu] # compute, utility なども指定可能だが gpu が一般的

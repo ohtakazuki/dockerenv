@@ -1,6 +1,0 @@
-numpy == 1.25.0
-matplotlib == 3.7.1
-pandas == 2.0.2
-requests == 2.31.0
-schedule == 1.2.0
-beautifulsoup4 == 4.12.2

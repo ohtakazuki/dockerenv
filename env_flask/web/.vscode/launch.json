@@ -1,26 +1,31 @@
 {
-  // IntelliSense を使用して利用可能な属性を学べます。
-  // 既存の属性の説明をホバーして表示します。
-  // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-    {
-      "name": "Python: Flask",
-      "type": "python",
-      "request": "launch",
-      "module": "flask",
-      "env": {
-        "FLASK_APP": "app.py",
-        "FLASK_DEBUG": "1"
-      },
-      "args": [
-        "run",
-        "--no-debugger",
-        "--no-reload",
-        "--host", "0.0.0.0",
-      ],
-      "jinja": true,
-      "justMyCode": true
-    }
+      {
+          "name": "Python: Flask",
+          "type": "python",
+          "request": "launch",
+          "module": "flask", // 'flask run' 相当
+          "env": {
+              // FLASK_APP は通常自動検出されるか、Dockerfile/Compose で設定
+              // "FLASK_APP": "app.py", 
+              // FLASK_ENV=development はデバッグモードを有効にする (推奨)
+              "FLASK_ENV": "development", 
+              // 環境変数で DB 接続情報を渡す (app.py が参照)
+              "MYSQL_USER": "${env:MYSQL_USER}", // ホストの環境変数または.envから取得
+              "MYSQL_PASSWORD": "${env:MYSQL_PASSWORD}",
+              "MYSQL_DATABASE": "${env:MYSQL_DATABASE}",
+              "MYSQL_HOST": "db" // compose のサービス名
+          },
+          "args": [
+              "run",
+              // "--debug", // FLASK_ENV=development で自動有効化
+              "--host", "0.0.0.0", // コンテナ外からアクセス可能にする
+              "--port", "5000"
+              // "--no-reload" // Dev Containers では autoreload が不安定な場合がある
+          ],
+          "jinja": true, // Jinja テンプレートのデバッグ有効化
+          "justMyCode": false // ライブラリ内部にもステップインする場合
+      }
   ]
 }

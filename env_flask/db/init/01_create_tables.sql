@@ -1,6 +1,6 @@
-create table book
-(
+-- テーブルが存在しない場合のみ作成
+CREATE TABLE IF NOT EXISTS book (
   id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-  title VARCHAR(100),
-  insert_timestamp DATETIME DEFAULT NULL
-);
+  title VARCHAR(255),
+  insert_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

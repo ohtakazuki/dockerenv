@@ -2,11 +2,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python",
+      "name": "Python: Current File",
       "type": "python",
       "request": "launch",
+      // 現在アクティブなファイルを実行
       "program": "${file}",
-      "console": "internalConsole"
+      // コンソール出力を VS Code の統合ターミナルに表示
+      "console": "integratedTerminal",
+      // 実行時のカレントディレクトリ (workspaceFolder=/app)
+      "cwd": "${workspaceFolder}" 
     }
   ]
 }

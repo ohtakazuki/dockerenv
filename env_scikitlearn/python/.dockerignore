@@ -1,0 +1,13 @@
+# Docker イメージのビルドコンテキストから除外するファイル/ディレクトリ
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+*.log
+.pytest_cache/
+out/ # sample.py が出力するディレクトリ
+in/ # .gitignore と同様の想定

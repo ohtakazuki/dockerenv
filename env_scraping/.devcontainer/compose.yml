@@ -1,10 +1,19 @@
 services:
   python:
-    image: scraping/python:1.0
-    build: ./python
-    container_name: 'scraping-python'
-    stdin_open: true
-    tty: true
+    build:
+      # ビルドコンテキストを ../python に更新
+      context: ../python
+      dockerfile: Dockerfile
+    
+    # 作業ディレクトリを /app に更新
+    working_dir: /app
+    
+    # コンテナを開発用に起動し続ける
+    command: sleep infinity
+
     volumes:
-      - ../python:/home/user1/dev
- 
+      # ホストの python ディレクトリ全体をコンテナの /app にマウント
+      - ../python:/app
+      
+    # (任意) コンテナ名を指定
+    # container_name: 'scraping-python-dev'

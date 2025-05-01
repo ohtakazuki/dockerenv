@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+.env*
+.cache/
+hf_cache/ # ホスト側にキャッシュディレクトリを作った場合
+*.log
+.vscode/
+.git/
+notebook/ # マウントする場合は不要だが、コピーする場合に除外
+*.ipynb_checkpoints

@@ -1,16 +1,27 @@
 {
-  "name": "Tensorflow2_pip Python",
+  "name": "TensorFlow Env (pip install)",
   "dockerComposeFile": "compose.yml",
   "service": "python",
-  "workspaceFolder": "/home/user1/dev",
+  // workspaceFolder を /app に更新
+  "workspaceFolder": "/app",
+  // remoteUser を appuser に設定
+  "remoteUser": "appuser",
+
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-python.python"
+        "ms-python.python",
+        // (任意) TensorFlow/Keras 開発に役立つ拡張機能
+        // "ms-toolsai.jupyter"
       ],
       "settings": {
-        "editor.tabSize": 2
+        "editor.tabSize": 4,
+        "python.defaultInterpreterPath": "/usr/local/bin/python", // Slim イメージの標準パス
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true
       }
     }
-  }
+  },
+  // TensorBoard 用のポートをフォワード
+  "forwardPorts": [6006]
 }

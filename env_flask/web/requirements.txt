@@ -1,0 +1,4 @@
+Flask==3.1.0
+
+# MySQL Connector for Python
+mysql-connector-python==9.3.0

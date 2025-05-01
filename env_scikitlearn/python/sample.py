@@ -16,15 +16,17 @@ import logging
 import logging.config
 from logging import getLogger
 
-if os.path.isdir("out") == False:
+# WORKDIR (/app) からの相対パスで出力ディレクトリを確認/作成
+if not os.path.isdir("out"):
     os.mkdir("out")
 
+# logging.conf も WORKDIR からの相対パスで読み込む
 logging.config.fileConfig("logging.conf")
 logger = getLogger(__name__)
 
 # ----------------------------------------
 # データの読み込み
-# ----------------------------------------
+# ------------------------
 from sklearn.datasets import load_iris
 iris = load_iris()
 

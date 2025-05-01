@@ -1,5 +1,7 @@
-INSERT INTO book VALUES(1, 'プログラミング言語C', current_timestamp);
-INSERT INTO book VALUES(2, 'やさしいコンピューター科学', current_timestamp);
-INSERT INTO book VALUES(3, 'ゲーデル、エッシャー、バッハ―あるいは不思議の環', current_timestamp);
-INSERT INTO book VALUES(4, 'TeXブック コンピュータによる組版システム', current_timestamp);
-INSERT INTO book VALUES(5, '人月の神話 狼人間を撃つ銀の弾はない', current_timestamp);
+-- 主キーを指定せず、DEFAULT を利用
+INSERT INTO book (title) VALUES
+  ('プログラミング言語C'),
+  ('やさしいコンピューター科学'),
+  ('ゲーデル、エッシャー、バッハ―あるいは不思議の環'),
+  ('TeXブック コンピュータによる組版システム'),
+  ('人月の神話 狼人間を撃つ銀の弾はない');

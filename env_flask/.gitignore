@@ -1,2 +1,24 @@
-/db/database
-/web/log
+# Python / Flask
+/web/__pycache__/
+/web/*.pyc
+/web/*.pyo
+/web/*.pyd
+/web/instance/
+/web/env/
+/web/venv/
+/web/.env*
+/web/.pytest_cache/
+/web/log/ 
+/web/out/ # このプロジェクトでは未使用
+/web/in/  # このプロジェクトでは未使用
+
+# Database Data (Now using named volume)
+# /db/database/ 
+
+# Dev Container
+.devcontainer/.cache/
+.devcontainer/.history*/
+
+# OS specific
+.DS_Store
+Thumbs.db
